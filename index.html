@@ -86,12 +86,13 @@
   }
   h1{
     font-family:var(--font-display);font-weight:800;
-    font-size:clamp(42px,8.5vw,74px);line-height:.98;letter-spacing:-.025em;
-    margin:0;color:var(--ink);
+    font-size:clamp(33px,7.6vw,72px);line-height:1.03;letter-spacing:-.025em;
+    margin:0;color:var(--ink);overflow-wrap:break-word;
   }
   h1 .sub{
-    display:inline-block;color:var(--green-deep);
-    background:linear-gradient(180deg,transparent 60%,color-mix(in oklab,var(--gold) 50%,var(--paper)) 60%,color-mix(in oklab,var(--gold) 50%,var(--paper)) 92%,transparent 92%);
+    display:inline;color:var(--green-deep);
+    -webkit-box-decoration-break:clone;box-decoration-break:clone;
+    background:linear-gradient(180deg,transparent 58%,color-mix(in oklab,var(--gold) 52%,var(--paper)) 58%,color-mix(in oklab,var(--gold) 52%,var(--paper)) 92%,transparent 92%);
     padding:0 .06em;
   }
   .deck{
@@ -259,6 +260,27 @@
   .madeby{font-size:13.5px;color:var(--ink-faint);background:var(--paper-2);border:1px solid var(--line);
     border-radius:6px;padding:17px 19px;margin-top:var(--space-sm);line-height:1.55;}
 
+  /* ---------- floating section nav ---------- */
+  .fnav{position:fixed;right:16px;bottom:16px;z-index:60;display:flex;flex-direction:column;align-items:flex-end;gap:8px;font-family:var(--font-body);}
+  .fnav-toggle{display:inline-flex;align-items:center;gap:9px;background:var(--green-deep);color:var(--paper);
+    border:1px solid color-mix(in oklab,var(--green-deep) 60%,black);border-radius:6px;padding:10px 14px;
+    font-size:14px;font-weight:600;cursor:pointer;box-shadow:var(--shadow-lift);max-width:80vw;line-height:1;}
+  .fnav-toggle:hover{background:var(--green);}
+  .fnav-toggle svg{width:17px;height:17px;flex:none;}
+  .fnav-toggle .fnav-current{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px;}
+  .fnav-toggle .chev{transition:transform .2s ease;opacity:.85;}
+  .fnav[data-open="true"] .chev{transform:rotate(180deg);}
+  .fnav-menu{display:none;flex-direction:column;background:var(--surface);border:1px solid var(--line);
+    border-radius:6px;box-shadow:var(--shadow-lift);overflow:auto;max-height:70vh;min-width:220px;max-width:calc(100vw - 32px);white-space:nowrap;}
+  .fnav[data-open="true"] .fnav-menu{display:flex;}
+  .fnav-menu a{display:block;padding:11px 16px;text-decoration:none;color:var(--ink-soft);font-size:15px;font-weight:500;border-top:1px solid var(--line-soft);}
+  .fnav-menu a:first-child{border-top:none;}
+  .fnav-menu a:hover{background:color-mix(in oklab,var(--surface) 86%,var(--gold));color:var(--ink);}
+  .fnav-menu a[aria-current="true"]{color:var(--green-deep);font-weight:700;background:color-mix(in oklab,var(--surface) 88%,var(--green));}
+  .fnav{display:none;} /* desktop only */
+  @media (min-width:768px){ .fnav{display:flex;} }
+  @media (prefers-reduced-motion:reduce){ .fnav-toggle .chev{transition:none;} }
+
   /* ---------- reveal ---------- */
   html.js .reveal{opacity:0;transform:translateY(20px);}
   html.js .reveal.in{opacity:1;transform:none;
@@ -280,6 +302,7 @@
   @media print{
     body{background:#fff;}
     body::before{display:none;}
+    .fnav{display:none!important;}
     .card,.note,.index-wrap,.madeby{box-shadow:none;}
     .card:hover{transform:none;}
     .leftout{background:#fff;color:#000;border:1px solid #999;}
@@ -296,9 +319,9 @@
 <div class="wrap">
 
   <!-- ============ HERO ============ -->
-  <header class="hero">
+  <header class="hero" id="top">
     <p class="eyebrow">Made for Eastside Rebuild</p>
-    <h1>Brent's newsletter,<br><span class="sub">translated for Luke</span></h1>
+    <h1>Brent's newsletter, <span class="sub">translated for Luke</span></h1>
     <p class="deck">It pulls 19 issues of AI news for credit unions down to what a reuse warehouse, a tool library, and a repair-cafe crew can use.</p>
     <div class="meta-row">
       <span class="chip"><span class="dot"></span>19 issues, read in full</span>
@@ -706,6 +729,25 @@
 
 </div>
 
+<div class="fnav" id="fnav" data-open="false">
+  <nav class="fnav-menu" id="fnavMenu" aria-label="Jump to a section">
+    <a href="#top" data-sec="top">Top</a>
+    <a href="#footing" data-sec="footing">Getting started</a>
+    <a href="#build" data-sec="build">Build your tools</a>
+    <a href="#findable" data-sec="findable">Be findable</a>
+    <a href="#human" data-sec="human">Keep it human</a>
+    <a href="#safe" data-sec="safe">Guardrails</a>
+    <a href="#look" data-sec="look">Worth a look</a>
+    <a href="#leftout" data-sec="leftout">What's left out</a>
+    <a href="#index" data-sec="index">All 19 issues</a>
+  </nav>
+  <button class="fnav-toggle" id="fnavToggle" aria-haspopup="true" aria-expanded="false" aria-controls="fnavMenu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+    <span class="fnav-current" id="fnavCurrent">Jump to a section</span>
+    <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+  </button>
+</div>
+
 <script>
   document.documentElement.classList.add('js');
   (function(){
@@ -715,6 +757,36 @@
       entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
     },{threshold:0.12, rootMargin:'0px 0px -7% 0px'});
     els.forEach(function(e){io.observe(e);});
+  })();
+
+  (function(){
+    var fnav=document.getElementById('fnav');
+    if(!fnav) return;
+    var toggle=document.getElementById('fnavToggle');
+    var current=document.getElementById('fnavCurrent');
+    var menu=document.getElementById('fnavMenu');
+    var links=menu.querySelectorAll('a[data-sec]');
+    var labels={top:'Jump to a section',footing:'Getting started',build:'Build your tools',findable:'Be findable',human:'Keep it human',safe:'Guardrails',look:'Worth a look',leftout:"What's left out",index:'All 19 issues'};
+    function setOpen(o){ fnav.setAttribute('data-open',o?'true':'false'); toggle.setAttribute('aria-expanded',o?'true':'false'); }
+    setOpen(false);
+    toggle.addEventListener('click',function(e){ e.stopPropagation(); setOpen(fnav.getAttribute('data-open')!=='true'); });
+    document.addEventListener('click',function(e){ if(!fnav.contains(e.target)) setOpen(false); });
+    document.addEventListener('keydown',function(e){ if(e.key==='Escape') setOpen(false); });
+    links.forEach(function(a){ a.addEventListener('click',function(){ setOpen(false); }); });
+    function setCurrent(id){
+      current.textContent=labels[id]||'Jump to a section';
+      links.forEach(function(a){ a.setAttribute('aria-current', a.getAttribute('data-sec')===id?'true':'false'); });
+    }
+    setCurrent('top');
+    if('IntersectionObserver' in window){
+      var order=['top','footing','build','findable','human','safe','look','leftout','index'];
+      var vis={};
+      var spy=new IntersectionObserver(function(es){
+        es.forEach(function(e){ vis[e.target.id]=e.isIntersecting; });
+        for(var i=0;i<order.length;i++){ if(vis[order[i]]){ setCurrent(order[i]); return; } }
+      },{rootMargin:'-42% 0px -52% 0px', threshold:0});
+      order.forEach(function(id){ var el=document.getElementById(id); if(el) spy.observe(el); });
+    }
   })();
 </script>
 </body>
