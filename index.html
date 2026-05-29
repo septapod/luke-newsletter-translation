@@ -11,25 +11,25 @@
 <style>
   :root{
     /* warm reclaimed-wood palette, OKLCH, neutrals tinted toward wood */
-    --paper:        oklch(0.962 0.014 78);
-    --paper-2:      oklch(0.943 0.019 72);
-    --surface:      oklch(0.989 0.007 85);
-    --ink:          oklch(0.255 0.018 55);
-    --ink-soft:     oklch(0.422 0.020 58);
-    --ink-faint:    oklch(0.548 0.016 62);
-    --line:         oklch(0.875 0.020 72);
-    --line-soft:    oklch(0.918 0.014 76);
+    --paper:        oklch(0.957 0.020 73);
+    --paper-2:      oklch(0.934 0.028 68);
+    --surface:      oklch(0.992 0.009 86);
+    --ink:          oklch(0.242 0.024 50);
+    --ink-soft:     oklch(0.416 0.026 54);
+    --ink-faint:    oklch(0.542 0.022 58);
+    --line:         oklch(0.866 0.030 66);
+    --line-soft:    oklch(0.912 0.020 72);
 
-    --green:        oklch(0.500 0.085 158);
-    --green-deep:   oklch(0.372 0.062 162);
-    --rust:         oklch(0.585 0.130 46);
-    --rust-deep:    oklch(0.468 0.108 44);
-    --gold:         oklch(0.720 0.105 78);
-    --gold-deep:    oklch(0.560 0.100 70);
-    --sage:         oklch(0.640 0.050 150);
-    --sage-deep:    oklch(0.470 0.052 152);
-    --clay:         oklch(0.560 0.110 32);
-    --clay-deep:    oklch(0.452 0.100 32);
+    --green:        oklch(0.492 0.112 158);
+    --green-deep:   oklch(0.356 0.086 164);
+    --rust:         oklch(0.572 0.156 43);
+    --rust-deep:    oklch(0.454 0.132 42);
+    --gold:         oklch(0.712 0.138 74);
+    --gold-deep:    oklch(0.544 0.126 69);
+    --sage:         oklch(0.606 0.084 150);
+    --sage-deep:    oklch(0.452 0.082 152);
+    --clay:         oklch(0.544 0.138 30);
+    --clay-deep:    oklch(0.436 0.126 30);
 
     /* spacing, 4pt scale, semantic */
     --space-2xs:4px; --space-xs:8px; --space-sm:12px; --space-md:16px;
@@ -37,8 +37,8 @@
 
     --shadow:      0 1px 2px rgba(54,40,26,.05), 0 8px 24px rgba(54,40,26,.07);
     --shadow-lift: 0 2px 6px rgba(54,40,26,.07), 0 18px 42px rgba(54,40,26,.13);
-    --radius:14px;
-    --radius-lg:20px;
+    --radius:5px;
+    --radius-lg:7px;
 
     --font-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
     --font-body:"Hanken Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
@@ -103,7 +103,7 @@
   .chip{
     display:inline-flex;align-items:center;gap:8px;
     background:var(--surface);border:1px solid var(--line);
-    border-radius:999px;padding:7px 15px;font-size:13.5px;color:var(--ink-soft);font-weight:500;
+    border-radius:5px;padding:7px 15px;font-size:13.5px;color:var(--ink-soft);font-weight:500;
   }
   .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
   .chip:nth-child(1) .dot{background:var(--rust);}
@@ -177,8 +177,8 @@
 
   /* ---------- CARDS ---------- */
   .card{
-    background:color-mix(in oklab,var(--surface) 96%,var(--accent));
-    border:1px solid color-mix(in oklab,var(--line) 82%,var(--accent));
+    background:color-mix(in oklab,var(--surface) 89%,var(--accent));
+    border:1px solid color-mix(in oklab,var(--line) 66%,var(--accent));
     border-radius:var(--radius-lg);
     padding:clamp(22px,3.4vw,32px);margin:0 0 var(--space-md);
     box-shadow:var(--shadow);transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease;
@@ -192,9 +192,9 @@
   .card p strong{color:var(--ink);font-weight:600;}
 
   .try{
-    background:color-mix(in oklab,var(--surface) 88%,var(--accent));
-    border:1px solid color-mix(in oklab,var(--line) 60%,var(--accent));
-    border-radius:12px;padding:15px 18px;margin:var(--space-md) 0;
+    background:color-mix(in oklab,var(--surface) 80%,var(--accent));
+    border:1px solid color-mix(in oklab,var(--line) 46%,var(--accent));
+    border-radius:5px;padding:15px 18px;margin:var(--space-md) 0;
   }
   .try .label{
     display:flex;align-items:center;gap:7px;
@@ -209,7 +209,7 @@
     display:inline-flex;align-items:center;gap:8px;text-decoration:none;
     font-size:13px;font-weight:600;color:var(--ink-soft);
     background:var(--surface);border:1px solid var(--line);
-    padding:6px 12px;border-radius:999px;transition:border-color .15s ease,color .15s ease;
+    padding:6px 12px;border-radius:5px;transition:border-color .15s ease,color .15s ease;
   }
   a.src:hover{border-color:var(--accent);color:var(--ink);}
   a.src .iss{color:var(--rust-deep);font-weight:700;font-family:var(--font-display);}
@@ -257,7 +257,7 @@
   footer a{color:var(--green-deep);font-weight:600;text-decoration:none;}
   footer a:hover{text-decoration:underline;}
   .madeby{font-size:13.5px;color:var(--ink-faint);background:var(--paper-2);border:1px solid var(--line);
-    border-radius:14px;padding:17px 19px;margin-top:var(--space-sm);line-height:1.55;}
+    border-radius:6px;padding:17px 19px;margin-top:var(--space-sm);line-height:1.55;}
 
   /* ---------- reveal ---------- */
   html.js .reveal{opacity:0;transform:translateY(20px);}
@@ -310,8 +310,8 @@
   <!-- ============ NOTE FROM THE ROBOT ============ -->
   <div class="note reveal">
     <h2>About this page</h2>
-    <p>Brent Dixon publishes a weekly newsletter called AI for FIs, written for credit unions and banks. To make it useful for Eastside Rebuild, he used Claude, an AI assistant, to read all 19 published issues and pull out the parts that apply to a reuse-and-repair nonprofit.</p>
-    <p>This page collects those parts in one place. Each item links back to the issue it came from. The bank-specific material that does not apply to Eastside Rebuild was left out.</p>
+    <p>Brent writes a weekly newsletter, AI for FIs, for people who work at credit unions and banks. Almost none of it is about reuse warehouses or tool libraries, so he had Claude read all 19 issues and pull out the parts that fit Eastside Rebuild instead.</p>
+    <p>Those are gathered here, grouped by topic, and each one links back to the issue it came from. Read what is useful and skip the rest.</p>
   </div>
 
   <!-- ============ CONTENTS ============ -->
