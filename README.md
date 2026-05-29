@@ -1,4 +1,4 @@
-# AI for Eastside Rebuild
+# Brent's newsletter, translated for Luke
 
 A curated reading of the *AI for FIs* newsletter, pulled out for the work of
 [Eastside Rebuild](https://www.eastsiderebuild.org/), a reuse-and-repair
