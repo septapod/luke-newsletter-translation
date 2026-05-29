@@ -5,7 +5,7 @@ A curated reading of the *AI for FIs* newsletter, pulled out for the work of
 nonprofit in Cashmere, WA (a salvage warehouse, a 550-tool lending library,
 repair cafes, and workshops).
 
-**Read it:** https://septapod.github.io/ai-for-eastside-rebuild/
+**Read it:** https://septapod.github.io/luke-newsletter-translation/
 
 It was made by pointing Claude at all 19 issues of
 [AI for FIs](https://ai4fis.beehiiv.com/) and asking it to keep only what a
