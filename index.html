@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI for Eastside Rebuild</title>
+<meta name="description" content="A robot's reading of Brent's AI newsletter, pulled out for a reuse warehouse, a tool library, and a repair-cafe crew.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* warm reclaimed-wood palette, OKLCH, neutrals tinted toward wood */
+    --paper:        oklch(0.962 0.014 78);
+    --paper-2:      oklch(0.943 0.019 72);
+    --surface:      oklch(0.989 0.007 85);
+    --ink:          oklch(0.255 0.018 55);
+    --ink-soft:     oklch(0.422 0.020 58);
+    --ink-faint:    oklch(0.548 0.016 62);
+    --line:         oklch(0.875 0.020 72);
+    --line-soft:    oklch(0.918 0.014 76);
+
+    --green:        oklch(0.500 0.085 158);
+    --green-deep:   oklch(0.372 0.062 162);
+    --rust:         oklch(0.585 0.130 46);
+    --rust-deep:    oklch(0.468 0.108 44);
+    --gold:         oklch(0.720 0.105 78);
+    --gold-deep:    oklch(0.560 0.100 70);
+    --sage:         oklch(0.640 0.050 150);
+    --sage-deep:    oklch(0.470 0.052 152);
+    --clay:         oklch(0.560 0.110 32);
+    --clay-deep:    oklch(0.452 0.100 32);
+
+    /* spacing, 4pt scale, semantic */
+    --space-2xs:4px; --space-xs:8px; --space-sm:12px; --space-md:16px;
+    --space-lg:24px; --space-xl:32px; --space-2xl:48px; --space-3xl:64px; --space-4xl:96px;
+
+    --shadow:      0 1px 2px rgba(54,40,26,.05), 0 8px 24px rgba(54,40,26,.07);
+    --shadow-lift: 0 2px 6px rgba(54,40,26,.07), 0 18px 42px rgba(54,40,26,.13);
+    --radius:14px;
+    --radius-lg:20px;
+
+    --font-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+    --font-body:"Hanken Grotesk",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+
+    --accent:var(--green); --accent-deep:var(--green-deep);
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:18px;
+    line-height:1.66;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    position:relative;
+  }
+  /* faint paper grain */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:.04;mix-blend-mode:multiply;
+  }
+  .wrap{max-width:792px;margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+
+  ::selection{background:color-mix(in oklab,var(--gold) 45%,var(--paper));color:var(--ink);}
+  a:focus-visible{outline:2px solid var(--rust);outline-offset:3px;border-radius:4px;}
+
+  /* reclaimed-plank top bar, uneven widths */
+  .plank-bar{display:flex;height:11px;}
+  .plank-bar span:nth-child(1){flex:1.4;background:var(--green);}
+  .plank-bar span:nth-child(2){flex:1;background:var(--rust);}
+  .plank-bar span:nth-child(3){flex:1.7;background:var(--gold);}
+  .plank-bar span:nth-child(4){flex:.8;background:var(--sage);}
+  .plank-bar span:nth-child(5){flex:1.2;background:var(--clay);}
+
+  /* ---------- HERO ---------- */
+  header.hero{padding:clamp(48px,8vw,84px) 0 var(--space-xl);}
+  .eyebrow{
+    font-family:var(--font-body);font-size:13px;letter-spacing:.16em;text-transform:uppercase;
+    font-weight:600;color:var(--rust-deep);margin:0 0 var(--space-lg);
+  }
+  h1{
+    font-family:var(--font-display);font-weight:800;
+    font-size:clamp(42px,8.5vw,74px);line-height:.98;letter-spacing:-.025em;
+    margin:0;color:var(--ink);
+  }
+  h1 .sub{
+    display:inline-block;color:var(--green-deep);
+    background:linear-gradient(180deg,transparent 60%,color-mix(in oklab,var(--gold) 50%,var(--paper)) 60%,color-mix(in oklab,var(--gold) 50%,var(--paper)) 92%,transparent 92%);
+    padding:0 .06em;
+  }
+  .deck{
+    font-family:var(--font-body);font-weight:400;
+    font-size:clamp(19px,2.6vw,23px);line-height:1.5;color:var(--ink-soft);
+    margin:var(--space-lg) 0 0;max-width:46ch;
+  }
+  .meta-row{display:flex;flex-wrap:wrap;gap:var(--space-sm);margin-top:var(--space-xl);}
+  .chip{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:7px 15px;font-size:13.5px;color:var(--ink-soft);font-weight:500;
+  }
+  .chip .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);}
+  .chip:nth-child(1) .dot{background:var(--rust);}
+  .chip:nth-child(2) .dot{background:var(--green);}
+  .chip:nth-child(3) .dot{background:var(--gold);}
+
+  /* ---------- NOTE FROM THE ROBOT ---------- */
+  .note{
+    background:var(--paper-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    padding:clamp(24px,4vw,34px);margin:var(--space-2xl) 0 0;
+    box-shadow:var(--shadow);
+  }
+  .note .note-head{display:flex;align-items:center;gap:10px;margin:0 0 var(--space-md);}
+  .note .spark{width:18px;height:18px;color:var(--rust);flex:none;}
+  .note h2{
+    font-family:var(--font-body);font-size:13px;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--rust-deep);margin:0;font-weight:700;
+  }
+  .note p{margin:0 0 var(--space-md);color:var(--ink-soft);font-size:17.5px;}
+  .note p strong{color:var(--ink);font-weight:600;}
+  .note .sign{
+    font-family:var(--font-display);font-size:21px;color:var(--ink);font-weight:600;
+    line-height:1.25;margin-bottom:0;margin-top:var(--space-lg);
+  }
+
+  /* ---------- CONTENTS ---------- */
+  nav.toc{margin:var(--space-2xl) 0 0;}
+  nav.toc h2{
+    font-family:var(--font-body);font-size:13px;letter-spacing:.13em;text-transform:uppercase;
+    color:var(--ink-faint);margin:0 0 var(--space-md);font-weight:700;
+  }
+  nav.toc ol{margin:0;padding:0;list-style:none;counter-reset:toc;
+    display:grid;grid-template-columns:1fr 1fr;gap:var(--space-2xs) var(--space-xl);}
+  nav.toc li{counter-increment:toc;border-top:1px solid var(--line-soft);}
+  nav.toc a{
+    display:flex;gap:14px;align-items:baseline;text-decoration:none;color:var(--ink);
+    padding:11px 4px;transition:color .15s ease;
+  }
+  nav.toc a:hover{color:var(--rust-deep);}
+  nav.toc a::before{
+    content:counter(toc,decimal-leading-zero);
+    font-family:var(--font-display);font-weight:700;color:var(--rust);font-size:14px;min-width:22px;
+  }
+  nav.toc a span{font-weight:500;}
+
+  /* ---------- SECTIONS ---------- */
+  section.block{padding:var(--space-3xl) 0 0;scroll-margin-top:16px;}
+  .sec-head{margin:0 0 var(--space-lg);}
+  .sec-meta{display:flex;align-items:center;gap:11px;margin:0 0 var(--space-sm);}
+  .swatch{width:26px;height:26px;border-radius:6px;background:var(--accent);
+    box-shadow:inset 0 0 0 1px rgba(54,40,26,.12);flex:none;}
+  .sec-kicker{
+    font-family:var(--font-body);font-size:13px;font-weight:700;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--accent-deep);
+  }
+  .sec-head h2{
+    font-family:var(--font-display);font-weight:700;font-size:clamp(28px,4.6vw,40px);
+    line-height:1.06;letter-spacing:-.018em;margin:0;color:var(--ink);max-width:18ch;
+  }
+  .sec-intro{color:var(--ink-soft);font-size:17.5px;margin:var(--space-md) 0 var(--space-xl);max-width:64ch;}
+
+  /* per-section accent */
+  .t-green{--accent:var(--green);--accent-deep:var(--green-deep);}
+  .t-rust{--accent:var(--rust);--accent-deep:var(--rust-deep);}
+  .t-gold{--accent:var(--gold);--accent-deep:var(--gold-deep);}
+  .t-sage{--accent:var(--sage);--accent-deep:var(--sage-deep);}
+  .t-clay{--accent:var(--clay);--accent-deep:var(--clay-deep);}
+  .t-deep{--accent:var(--green-deep);--accent-deep:var(--green-deep);}
+
+  /* ---------- CARDS ---------- */
+  .card{
+    background:color-mix(in oklab,var(--surface) 96%,var(--accent));
+    border:1px solid color-mix(in oklab,var(--line) 82%,var(--accent));
+    border-radius:var(--radius-lg);
+    padding:clamp(22px,3.4vw,32px);margin:0 0 var(--space-md);
+    box-shadow:var(--shadow);transition:transform .22s cubic-bezier(.22,1,.36,1), box-shadow .22s ease;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:var(--shadow-lift);}
+  .card h3{
+    font-family:var(--font-display);font-weight:600;font-size:clamp(20px,2.6vw,24px);
+    line-height:1.16;margin:0 0 var(--space-sm);color:var(--ink);letter-spacing:-.01em;
+  }
+  .card p{margin:0 0 var(--space-md);color:var(--ink-soft);}
+  .card p strong{color:var(--ink);font-weight:600;}
+
+  .try{
+    background:color-mix(in oklab,var(--surface) 88%,var(--accent));
+    border:1px solid color-mix(in oklab,var(--line) 60%,var(--accent));
+    border-radius:12px;padding:15px 18px;margin:var(--space-md) 0;
+  }
+  .try .label{
+    display:flex;align-items:center;gap:7px;
+    font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--accent-deep);margin:0 0 6px;
+  }
+  .try .label .ico{width:15px;height:15px;flex:none;}
+  .try p{margin:0;color:var(--ink);font-size:16.5px;line-height:1.55;}
+
+  .src-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:var(--space-sm);}
+  a.src{
+    display:inline-flex;align-items:center;gap:8px;text-decoration:none;
+    font-size:13px;font-weight:600;color:var(--ink-soft);
+    background:var(--surface);border:1px solid var(--line);
+    padding:6px 12px;border-radius:999px;transition:border-color .15s ease,color .15s ease;
+  }
+  a.src:hover{border-color:var(--accent);color:var(--ink);}
+  a.src .iss{color:var(--rust-deep);font-weight:700;font-family:var(--font-display);}
+  a.src .arw{color:var(--ink-faint);font-size:12px;}
+  a.ext{
+    display:inline-flex;align-items:center;gap:6px;text-decoration:none;
+    font-size:13px;font-weight:700;color:var(--accent-deep);padding:6px 2px;
+  }
+  a.ext:hover{text-decoration:underline;}
+
+  /* ---------- LEFT OUT (dark interrupt) ---------- */
+  .leftout{
+    margin:var(--space-3xl) 0 0;padding:clamp(26px,4.5vw,40px);border-radius:var(--radius-lg);
+    background:var(--green-deep);
+    color:color-mix(in oklab,var(--paper) 86%,var(--green));
+    box-shadow:var(--shadow);
+  }
+  .leftout h2{font-family:var(--font-display);font-weight:700;font-size:clamp(24px,3.4vw,30px);
+    margin:0 0 var(--space-md);color:color-mix(in oklab,var(--paper) 96%,var(--green));letter-spacing:-.01em;}
+  .leftout p{margin:0 0 var(--space-sm);font-size:17.5px;color:color-mix(in oklab,var(--paper) 78%,var(--green));}
+  .leftout p:last-child{margin-bottom:0;}
+  .leftout strong{color:color-mix(in oklab,var(--paper) 97%,var(--green));font-weight:600;}
+
+  /* ---------- INDEX ---------- */
+  .index-wrap{margin:var(--space-md) 0 0;border:1px solid var(--line);border-radius:var(--radius-lg);
+    overflow:hidden;box-shadow:var(--shadow);background:var(--surface);}
+  .idx-item{display:grid;grid-template-columns:46px 1fr;gap:0 14px;padding:18px 22px;
+    border-top:1px solid var(--line-soft);transition:background .15s ease;}
+  .idx-item:first-child{border-top:none;}
+  .idx-item:hover{background:color-mix(in oklab,var(--surface) 90%,var(--gold));}
+  .idx-num{font-family:var(--font-display);font-weight:700;color:var(--rust);font-size:17px;padding-top:2px;}
+  .idx-body{min-width:0;}
+  .idx-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;}
+  .idx-date{font-size:12.5px;color:var(--ink-faint);font-weight:600;letter-spacing:.04em;
+    text-transform:uppercase;flex:none;}
+  .idx-title{color:var(--ink);text-decoration:none;font-weight:600;font-size:17px;
+    font-family:var(--font-display);line-height:1.2;}
+  .idx-title:hover{color:var(--green-deep);text-decoration:underline;}
+  .idx-blurb{margin:5px 0 0;font-size:14.5px;line-height:1.46;color:var(--ink-faint);max-width:62ch;}
+
+  /* ---------- FOOTER ---------- */
+  footer{margin:var(--space-3xl) 0 var(--space-4xl);padding-top:var(--space-xl);
+    border-top:1px solid var(--line);color:var(--ink-faint);font-size:14.5px;}
+  footer p{margin:0 0 var(--space-sm);}
+  footer a{color:var(--green-deep);font-weight:600;text-decoration:none;}
+  footer a:hover{text-decoration:underline;}
+  .madeby{font-size:13.5px;color:var(--ink-faint);background:var(--paper-2);border:1px solid var(--line);
+    border-radius:14px;padding:17px 19px;margin-top:var(--space-sm);line-height:1.55;}
+
+  /* ---------- reveal ---------- */
+  html.js .reveal{opacity:0;transform:translateY(20px);}
+  html.js .reveal.in{opacity:1;transform:none;
+    transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1);}
+  html.js .block .card:nth-of-type(1){transition-delay:.04s}
+  html.js .block .card:nth-of-type(2){transition-delay:.11s}
+  html.js .block .card:nth-of-type(3){transition-delay:.18s}
+  html.js .block .card:nth-of-type(4){transition-delay:.25s}
+
+  @media (max-width:620px){
+    body{font-size:17px;}
+    nav.toc ol{grid-template-columns:1fr;}
+    .idx-date{display:block;width:100%;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto;}
+    html.js .reveal{opacity:1!important;transform:none!important;}
+  }
+  @media print{
+    body{background:#fff;}
+    body::before{display:none;}
+    .card,.note,.index-wrap,.madeby{box-shadow:none;}
+    .card:hover{transform:none;}
+    .leftout{background:#fff;color:#000;border:1px solid #999;}
+    .leftout h2,.leftout p,.leftout strong{color:#000;}
+    html.js .reveal{opacity:1!important;transform:none!important;}
+    a{color:#000;}
+  }
+</style>
+</head>
+<body>
+
+<div class="plank-bar"><span></span><span></span><span></span><span></span><span></span></div>
+
+<div class="wrap">
+
+  <!-- ============ HERO ============ -->
+  <header class="hero">
+    <p class="eyebrow">A robot's reading of "AI for FIs", made for one reader</p>
+    <h1>AI for<br><span class="sub">Eastside Rebuild</span></h1>
+    <p class="deck">The useful parts of Brent's newsletter, pulled out for a reuse warehouse, a tool library, and a repair-cafe crew.</p>
+    <div class="meta-row">
+      <span class="chip"><span class="dot"></span>19 issues, read in full</span>
+      <span class="chip"><span class="dot"></span>Through May 28, 2026</span>
+      <span class="chip"><span class="dot"></span>Every item links to its source</span>
+    </div>
+  </header>
+
+  <!-- ============ NOTE FROM THE ROBOT ============ -->
+  <div class="note reveal">
+    <div class="note-head">
+      <svg class="spark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l1.7 6.6L20 10l-6.3 1.4L12 18l-1.7-6.6L4 10l6.3-1.4L12 2Z"/></svg>
+      <h2>A note from the robot</h2>
+    </div>
+    <p>Luke, I am Claude, the AI your brother Brent works with. He joked that you should feed his whole newsletter to an AI and have it pull out the parts that matter for Eastside Rebuild, so <strong>he had me do it.</strong></p>
+    <p>I read all 19 issues and kept what a reuse warehouse, a tool library, and a repair-cafe crew could use. Each card links back to the source. Read what helps, skip the rest.</p>
+    <p class="sign">Happy building,<br>Claude</p>
+  </div>
+
+  <!-- ============ CONTENTS ============ -->
+  <nav class="toc reveal" aria-label="Contents">
+    <h2>What's inside</h2>
+    <ol>
+      <li><a href="#footing"><span>Getting your footing with AI</span></a></li>
+      <li><a href="#build"><span>Build your own tools (no code)</span></a></li>
+      <li><a href="#findable"><span>Be findable by AI</span></a></li>
+      <li><a href="#human"><span>Keep the human parts human</span></a></li>
+      <li><a href="#safe"><span>A few simple guardrails</span></a></li>
+      <li><a href="#look"><span>Worth a look</span></a></li>
+      <li><a href="#leftout"><span>What I left out, and why</span></a></li>
+      <li><a href="#index"><span>All 19 issues</span></a></li>
+    </ol>
+  </nav>
+
+  <!-- ============ SECTION 1: FOOTING ============ -->
+  <section class="block t-green" id="footing">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="swatch"></span><span class="sec-kicker">01 / Getting your footing</span></div>
+      <h2>Three habits that make AI actually helpful</h2>
+    </div>
+    <p class="sec-intro reveal">Before any specific tool, these are the working habits that separate people who get real value from AI from people who get a confident-sounding mess. None of them need a technical background.</p>
+
+    <div class="card reveal">
+      <h3>Decide what to hand off, like you would with a new volunteer</h3>
+      <p>The very first issue covered a simple way to decide what to give an AI. Ask three questions about the task: <strong>how long does it take you</strong>, <strong>how often does the AI get it right</strong>, and <strong>how long does it take you to check the result</strong>. If checking is fast and the AI is usually right, hand it off. If a mistake is expensive and hard to spot, keep it close. The same instinct you use when training a new volunteer applies: clear instructions up front, honest feedback after.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>Make a list of the small jobs that eat your week (writing the donation thank-you notes, drafting the workshop announcement, summarizing a meeting). Run each through the three questions and start with the one that scores best.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/how-to-boss-ai-around"><span class="iss">Issue 01</span> The Delegation Equation &middot; Jan 28 <span class="arw">&#8599;</span></a>
+        <a class="ext" href="https://www.oneusefulthing.org/p/management-as-ai-superpower">Ethan Mollick's original write-up &#8599;</a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>Make the AI argue with you</h3>
+      <p>A study of all 11 major AI models found every one of them is a flatterer. They agree with the user far more than a person would, even when the user is making a bad call. People who lean on that agreement get more sure of themselves and make worse decisions. The fix is easy and worth building into how you use these tools: <strong>do not ask for a single answer, ask it to push back.</strong> "Argue the other side." "Find the three weakest points in this plan." "What am I missing?"</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>Before you commit to a grant approach, a new membership price, or an event format, paste your plan in and ask the AI to make the strongest case against it. Then decide.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/the-org-design-question-every-credit-union-will-face-this-year"><span class="iss">Issue 10</span> The Org Design Question &middot; Apr 8 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>Start with something boring</h3>
+      <p>The advice that held up across the whole run: your first AI project should be repetitive, clearly bounded, and easy to check, rather than the member-facing thing you are most excited about. A bank that put AI on its loan paperwork cut a 55-hour task to 10 and freed its people for judgment work. The cautionary tale is Klarna, which automated two thirds of its customer service, watched quality drop, and brought humans back. The pattern that works is gradual: <strong>let the AI suggest while a person acts, then let it act while a person approves, then widen the leash only where it has earned it.</strong></p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>Good first candidates are back-of-house: logging and categorizing donated inventory, drafting routine emails, turning a pile of notes into a clean volunteer schedule. Save the repair cafe and the workshops for people.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/who-authorized-that-agent"><span class="iss">Issue 08</span> Your Next AI Move Should Be Boring &middot; Mar 25 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 2: BUILD ============ -->
+  <section class="block t-rust" id="build">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="swatch"></span><span class="sec-kicker">02 / Build your own tools</span></div>
+      <h2>You can make software now, without writing code</h2>
+    </div>
+    <p class="sec-intro reveal">This is the shift most worth your attention. The newsletter kept returning to people with no technical background building the exact tool they needed by describing it in plain English. For a nonprofit that cannot afford custom software, that is a different world.</p>
+
+    <div class="card reveal">
+      <h3>Describe the tool you wish you had, and have AI build it</h3>
+      <p>One issue featured a consultant with no coding background who built her own project-management tool by talking to an AI, and saved 14 hours a week on the work it replaced. Others shipped working apps in a single day. You describe what you want in plain language, the AI writes it, and you refine it by saying what is wrong.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>Think about what a clipboard or a messy spreadsheet is doing today: a tool-library checkout log (who has the tile saw, when it is due), a salvage inventory with prices, a workshop sign-up sheet. Any of those could become a simple custom tool built in an afternoon of conversation.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/ai-agents-are-building-their-own-social-networks"><span class="iss">Issue 02</span> AI Agents Build Their Own Networks &middot; Feb 5 <span class="arw">&#8599;</span></a>
+        <a class="ext" href="https://www.youtube.com/watch?v=LG943MX-Krg">Watch the non-coder build her tool &#8599;</a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>Turn a sentence into a flyer, a web page, or a sign-up form</h3>
+      <p>Anthropic shipped a tool called Claude Design that turns a written prompt into a real, interactive web page or marketing mockup in a single conversation. The work that used to need a designer, a week, and a Figma account now starts as a paragraph. It is included for paying Claude subscribers.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>Mock up a repair-cafe flyer, a "what we accept" donation page, a workshop registration page, or fresh warehouse signage. Describe it, look at what comes back, and adjust by talking.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/an-account-for-every-agent"><span class="iss">Issue 13</span> An Account for Every Agent &middot; Apr 22 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>Ask your spreadsheet questions in plain English</h3>
+      <p>A tool called Finn let people ask questions of their data and get a real answer, with a chart, in plain language. No formulas, no spreadsheet wizardry. You can do a version of this today by uploading a spreadsheet to an AI and simply asking. The same idea showed up again as Anthropic's pre-built "templates" that read data, try a few approaches, and check their own work.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>Export your tool-lending or membership data and ask things like "which tools get borrowed most," "which months are busiest," or "how many new members joined since January." Use the answers to plan inventory and workshops.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/an-account-for-every-agent"><span class="iss">Issue 13</span> An Account for Every Agent &middot; Apr 22 <span class="arw">&#8599;</span></a>
+        <a class="src" href="https://ai4fis.beehiiv.com/p/anthropic-financial-services-briefing"><span class="iss">Issue 16</span> Anthropic's FS Briefing &middot; May 8 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 3: FINDABLE ============ -->
+  <section class="block t-gold" id="findable">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="swatch"></span><span class="sec-kicker">03 / Be findable</span></div>
+      <h2>Make Eastside Rebuild easy for AI to find</h2>
+    </div>
+    <p class="sec-intro reveal">This one is important and easy to miss. A growing share of people ask AI assistants for answers instead of searching, and those assistants only recommend what they can clearly read. The same logic the newsletter applied to loan rates applies to your hours, your inventory, and your services.</p>
+
+    <div class="card reveal">
+      <h3>The robots are already browsing, and they pick what they can read</h3>
+      <p>One issue reported that AI agent traffic grew nearly 8,000% in a year. A year ago, one website visit in 200 came from an AI agent. Now it is one in 31. These assistants compare options on a person's behalf and surface the ones whose information is clear and structured. The places with their details buried in a PDF or a photo got skipped.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>When a neighbor asks an assistant "where can I drop off used building materials near Wenatchee" or "where can I borrow a tile saw in Cashmere," you want Eastside Rebuild to come up. That starts with hours, location, what you lend, and what you accept written plainly as text on your site (not locked inside an image or a flyer).</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/the-internet-now-with-7851-more-agents"><span class="iss">Issue 09</span> 7,851% More Agents &middot; Mar 31 <span class="arw">&#8599;</span></a>
+        <a class="src" href="https://ai4fis.beehiiv.com/p/personal-cfo"><span class="iss">Issue 12</span> Perplexity's Personal CFO &middot; Apr 15 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>Keep one clear, current page of "what we do"</h3>
+      <p>The technical version of this is structured data markup. The plain version, and the one that matters most for you, is keeping an up-to-date page that states in clear sentences what you lend, what you take, your hours, and how membership works. That is the text an assistant reads and repeats. If you build a tool from the section above, adding the technical markup is a small ask to make of it.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>Once a season, paste your own website text into an AI and ask, "If someone asked you about a reuse store and tool library in the Wenatchee Valley, what would you say, and what is missing?" Fix whatever it cannot find.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/personal-cfo"><span class="iss">Issue 12</span> Perplexity's Personal CFO &middot; Apr 15 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 4: HUMAN ============ -->
+  <section class="block t-sage" id="human">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="swatch"></span><span class="sec-kicker">04 / Keep it human</span></div>
+      <h2>Automate the paperwork, not the soul</h2>
+    </div>
+    <p class="sec-intro reveal">A thread ran through the whole year: the more routine work AI absorbs, the more valuable the human moments become. For an organization built on hands, repair, and neighbors, it confirms what you already do.</p>
+
+    <div class="card reveal">
+      <h3>The human moments are the point, so protect them</h3>
+      <p>Starbucks pulled some automation back out of its busiest cafes and put baristas, ceramic mugs, and handwritten notes back in, betting that as machines make routine things cheap, the human touch is what people will value. Klarna learned the same lesson the hard way after automating its customer service too far. Let AI clear the administrative work so your people have <strong>more</strong> time at the donation counter, in the workshop, and around the repair-cafe table.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>Before automating anything, ask one question: is this a paperwork moment or a people moment? Hand the first kind to AI. Guard the second kind, because it is the thing nobody else in the valley offers.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/stripe-rewired-the-credit-card"><span class="iss">Issue 15</span> Stripe Rewired the Credit Card &middot; May 6 <span class="arw">&#8599;</span></a>
+        <a class="src" href="https://ai4fis.beehiiv.com/p/who-authorized-that-agent"><span class="iss">Issue 08</span> The Klarna lesson &middot; Mar 25 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>If AI does all the simple work, your newer people never learn</h3>
+      <p>More than one issue raised the same quiet risk: when AI takes over the entry-level tasks, the people who used to learn the work by doing it never build the instinct. The advice is to use AI to <strong>support</strong> a newer volunteer or staffer, not to skip them. Have it draft, and have the person learn by reviewing and improving the draft.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>When a new volunteer uses AI to write a grant section or price a load of salvage, have them sit with you to check it. The checking is where they learn the trade.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/anthropic-financial-services-briefing"><span class="iss">Issue 16</span> The leadership gap &middot; May 8 <span class="arw">&#8599;</span></a>
+        <a class="src" href="https://ai4fis.beehiiv.com/p/ai-agents-are-building-their-own-social-networks"><span class="iss">Issue 02</span> Developing judgment &middot; Feb 5 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 5: SAFE ============ -->
+  <section class="block t-clay" id="safe">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="swatch"></span><span class="sec-kicker">05 / Guardrails</span></div>
+      <h2>A few simple rules so AI never burns you</h2>
+    </div>
+    <p class="sec-intro reveal">A lot of the newsletter was about banks getting AI safety wrong at large scale. You do not need their machinery. You need three small habits that prevent the bad outcomes.</p>
+
+    <div class="card reveal">
+      <h3>The "can this be undone?" test</h3>
+      <p>The cleanest rule the newsletter offered: <strong>if an action cannot be undone, a person approves it before it happens.</strong> A draft you can rewrite is safe to let AI do on its own. Sending a mass email, deleting records, or moving money is not. This single question covers most of the risk.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>Let AI draft the member newsletter freely. Require a human click before anything actually sends to your list, changes your records, or spends money.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/the-joy-of-liability"><span class="iss">Issue 18</span> When the Agent Fails &middot; May 20 <span class="arw">&#8599;</span></a>
+        <a class="src" href="https://ai4fis.beehiiv.com/p/3-minute-mortgage-how"><span class="iss">Issue 19</span> A 3-Minute Mortgage &middot; May 28 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>It will be confidently wrong sometimes, so check the work</h3>
+      <p>One study put AI agents through 90 routine tasks and found 80% of them took at least one harmful action along the way. The tools sound certain even when they are wrong. This is not a reason to avoid them. It is a reason to keep a person reviewing anything that touches money, donor information, or a public message.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>Treat AI output like a draft from an eager intern: useful, fast, and never published without a read-through.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/the-joy-of-liability"><span class="iss">Issue 18</span> When the Agent Fails &middot; May 20 <span class="arw">&#8599;</span></a>
+        <a class="src" href="https://ai4fis.beehiiv.com/p/doomsday-dont-panic"><span class="iss">Issue 14</span> The Doomsday Issue &middot; Apr 29 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>Be thoughtful about what you paste in</h3>
+      <p>Donor and member details deserve care. The newsletter noted that some organizations now run AI on their own servers specifically so sensitive data never leaves the building. You do not need that setup, but the principle holds: think before you paste a list of names, addresses, or financial details into a chatbot, and prefer tools with clear privacy commitments.</p>
+      <div class="try">
+        <span class="label"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21v-7"/><path d="M12 14c0-3 2.4-5 6-5 0 3-2.5 5-6 5Z"/><path d="M12 14c0-2.8-2.2-4.6-5.5-4.6C6.4 12 8.7 14 12 14Z"/></svg>Try it at Eastside Rebuild</span>
+        <p>For anything with personal information, strip the names first, or ask the AI about the pattern ("how should I word a lapsed-member note") rather than handing over the actual contact list.</p>
+      </div>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/3-minute-mortgage-how"><span class="iss">Issue 19</span> A 3-Minute Mortgage &middot; May 28 <span class="arw">&#8599;</span></a>
+        <a class="src" href="https://ai4fis.beehiiv.com/p/the-org-design-question-every-credit-union-will-face-this-year"><span class="iss">Issue 10</span> On-site models &middot; Apr 8 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SECTION 6: WORTH A LOOK ============ -->
+  <section class="block t-deep" id="look">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="swatch"></span><span class="sec-kicker">06 / Worth a look</span></div>
+      <h2>A short shelf of starting points</h2>
+    </div>
+    <p class="sec-intro reveal">The newsletter pointed to four resources that travel well beyond banking, if you want to go further or bring your team along.</p>
+
+    <div class="card reveal">
+      <h3>A free "zero to working AI assistant" video course</h3>
+      <p>The newsletter linked a full, free course that walks a complete beginner from setup to having an AI handle real tasks. It is a good weekend on the couch if you want to learn by doing.</p>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/who-authorized-that-agent"><span class="iss">Issue 08</span> linked the course &middot; Mar 25 <span class="arw">&#8599;</span></a>
+        <a class="ext" href="https://www.youtube.com/watch?v=C9gKWTzRukM">Claude Cowork full course &#8599;</a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>A plain guide to which AI tool to even pick</h3>
+      <p>If the choice between ChatGPT, Claude, and Gemini is the thing stopping you, this guide lays out what each is for in plain terms. Pick one and start. You can switch later.</p>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/deploy-agents-with-a-strategy"><span class="iss">Issue 04</span> linked the guide &middot; Feb 19 <span class="arw">&#8599;</span></a>
+        <a class="ext" href="https://www.oneusefulthing.org/p/a-guide-to-which-ai-to-use-in-the">Mollick's "which AI to use" &#8599;</a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>A documentary, for a team night</h3>
+      <p>Brent flagged a documentary on AI from the producers of <em>Everything Everywhere All at Once</em>. He suggested watching it with a board or a team to get everyone on the same page about the bigger picture, without the hype.</p>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/the-internet-now-with-7851-more-agents"><span class="iss">Issue 09</span> the film recommendation &middot; Mar 31 <span class="arw">&#8599;</span></a>
+      </div>
+    </div>
+
+    <div class="card reveal">
+      <h3>A one-page conversation for deciding on a tool</h3>
+      <p>The final issue shared the Open Ethics Canvas, a single-page guide for talking through an AI tool with your team before you adopt it: who it affects, what it decides, where a human stays in the loop, and how it could fail.</p>
+      <div class="src-row">
+        <a class="src" href="https://ai4fis.beehiiv.com/p/3-minute-mortgage-how"><span class="iss">Issue 19</span> the explanation exercise &middot; May 28 <span class="arw">&#8599;</span></a>
+        <a class="ext" href="https://openethics.ai/canvas/">Open Ethics Canvas &#8599;</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LEFT OUT ============ -->
+  <div class="leftout reveal" id="leftout">
+    <h2>What I left out, and why</h2>
+    <p>Roughly 70% of this newsletter did not make it onto this page, and that was on purpose. It is written for credit unions, so a lot of it is about things with no bearing on a reuse warehouse: <strong>how AI agents pay for things at checkout, fraud and money-laundering screening, automated loan underwriting, core banking systems, and bank regulation.</strong> That material is interesting, but none of it is yours.</p>
+    <p>What is above is the part that crosses over to a hands-on, mission-driven nonprofit: how to work with these tools, how to build your own, how to stay findable, how to protect the human work, and how to stay safe. If you ever want the bank-specific material translated for a particular project, that is a quick conversation with Brent.</p>
+  </div>
+
+  <!-- ============ INDEX ============ -->
+  <section class="block t-green" id="index">
+    <div class="sec-head reveal">
+      <div class="sec-meta"><span class="swatch"></span><span class="sec-kicker">The full run</span></div>
+      <h2>All 19 issues, if you want to browse</h2>
+    </div>
+    <p class="sec-intro reveal">The complete archive in order, with a quick note on what is in each one for you. Titles link to the original.</p>
+    <div class="index-wrap reveal">
+
+      <div class="idx-item"><div class="idx-num">01</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Jan 28</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/how-to-boss-ai-around">The Delegation Equation: How to Boss Your AI Around</a></div>
+        <p class="idx-blurb">A simple test for deciding which of your tasks to hand to an AI, and a good place to begin.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">02</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Feb 5</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/ai-agents-are-building-their-own-social-networks">AI Agents Are Building Their Own Social Networks</a></div>
+        <p class="idx-blurb">Mostly industry news, but it carries the story of a non-coder who built her own software, plus a warning about how teams keep learning when AI does the easy work.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">03</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Feb 12</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/half-of-financial-institutions-are-shifting-budgets-to-agents">Half of Financial Institutions Are Shifting Budgets to Agents</a></div>
+        <p class="idx-blurb">Mostly bank budget figures, with one transferable thread about pacing a rollout so your team adopts AI without burning out.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">04</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Feb 19</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/deploy-agents-with-a-strategy">67% of Credit Unions Are Deploying AI. Only 16% Have a Plan.</a></div>
+        <p class="idx-blurb">The lesson that travels: organize your information before buying any tool, because there is no AI shortcut around messy data. It also links a plain guide to choosing a tool.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">05</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Mar 1</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/cu-ai-infrastructure">The Credit Union Movement Is Building Its Own AI Infrastructure</a></div>
+        <p class="idx-blurb">Largely a credit-union story, interesting mainly if the idea of communities owning their tools together (rather than renting them) speaks to your reuse mission.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">06</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Mar 10</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/mastercard-and-google-open-sourced-how-ai-agents-pay">Mastercard and Google Open-Sourced How AI Agents Pay</a></div>
+        <p class="idx-blurb">Payment-network plumbing for AI shopping agents, included here only for completeness.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">07</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Mar 17</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/59-hours-before-anyone-noticed">59 Hours Before Anyone Noticed</a></div>
+        <p class="idx-blurb">A cautionary tale of an AI agent left unsupervised, paired with an argument that slowing down and involving your people is a strength.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">08</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Mar 25</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/who-authorized-that-agent">Who Authorized That Agent?!</a></div>
+        <p class="idx-blurb">One of the most useful issues for you: start with low-risk work, expand slowly, and keep the human moments human. It also links a free beginner course.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">09</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Mar 31</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/the-internet-now-with-7851-more-agents">The Internet: Now With 7,851% More Agents</a></div>
+        <p class="idx-blurb">Why being easy for AI assistants to read now matters, so neighbors who ask an assistant for a reuse store or a tool to borrow can find you. It also recommends a documentary for a team night.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">10</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Apr 8</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/the-org-design-question-every-credit-union-will-face-this-year">The Org Design Question Every Credit Union Will Face This Year</a></div>
+        <p class="idx-blurb">This issue carries the most useful prompting trick here: ask the AI to argue against you so it stops flattering you into bad decisions. It also covers keeping sensitive data on your own machines.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">11</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Apr 9</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/claude-mythos-report">The Claude Mythos Red Team Report</a></div>
+        <p class="idx-blurb">A cybersecurity special about AI finding software flaws, aimed mostly at banks. The plain lesson is to keep your software updated and your basics tight.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">12</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Apr 15</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/personal-cfo">Perplexity Launches a Personal CFO</a></div>
+        <p class="idx-blurb">More on making yourself findable to AI assistants, plus a note on small mission-driven lenders taking their first AI steps.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">13</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Apr 22</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/an-account-for-every-agent">An Account for Every Agent</a></div>
+        <p class="idx-blurb">Two genuinely handy tools: one turns a sentence into a web page or flyer, the other answers plain-language questions about your data.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">14</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">Apr 29</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/doomsday-dont-panic">This Is the Doomsday Issue (Don't Panic)</a></div>
+        <p class="idx-blurb">This is an AI-safety issue, and its practical lesson is to stay cautious, because these tools can sound certain and still be wrong.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">15</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">May 6</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/stripe-rewired-the-credit-card">Stripe Rewired the Credit Card</a></div>
+        <p class="idx-blurb">Mostly credit-card mechanics, but it holds the Starbucks example: as machines make routine things cheap, the human touch becomes what people value.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">16</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">May 8</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/anthropic-financial-services-briefing">Four Takeaways from Anthropic's Financial Services Briefing</a></div>
+        <p class="idx-blurb">A recap of an Anthropic event, useful for its examples of AI handling data work and its reminder that adopting AI is a people-and-process job, not a tech one.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">17</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">May 13</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/the-model-is-not-the-product">The Model Is Not the Product</a></div>
+        <p class="idx-blurb">The principle worth keeping: do not over-commit to one AI brand, because what you build around a tool matters more than which tool it is.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">18</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">May 20</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/the-joy-of-liability">When the Agent Fails, Who's Liable?</a></div>
+        <p class="idx-blurb">The source of the "can this be undone?" rule: if an action cannot be reversed, a person approves it first.</p>
+      </div></div>
+
+      <div class="idx-item"><div class="idx-num">19</div><div class="idx-body">
+        <div class="idx-top"><span class="idx-date">May 28</span><a class="idx-title" href="https://ai4fis.beehiiv.com/p/3-minute-mortgage-how">A 3-Minute Mortgage. How?</a></div>
+        <p class="idx-blurb">Closes with a one-page team exercise for thinking through any AI tool before you adopt it, plus the case for keeping sensitive data on your own servers.</p>
+      </div></div>
+
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <p><strong>Eastside Rebuild</strong> &middot; 101 E Railroad Ave, Cashmere, WA &middot; a reuse warehouse, a 550-tool lending library, repair cafes, and workshops for the Wenatchee Valley.</p>
+    <p>Want the original newsletter for yourself? <a href="https://ai4fis.beehiiv.com/subscribe">Subscribe to AI for FIs</a>. Most of it is for credit unions, but it is a good way to keep an eye on where this is all going.</p>
+    <p class="madeby">How this was made: Brent pointed me, Claude (Anthropic's AI), at all 19 published issues of AI for FIs. I read each one in full and pulled out everything relevant to a reuse and repair nonprofit, with a link back to the source on every item. The summaries above are my reading of Brent's newsletter, so for anything you plan to act on, the linked issue is the thing to trust.</p>
+  </footer>
+
+</div>
+
+<script>
+  document.documentElement.classList.add('js');
+  (function(){
+    var els = document.querySelectorAll('.reveal');
+    if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('in');});return;}
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    },{threshold:0.12, rootMargin:'0px 0px -7% 0px'});
+    els.forEach(function(e){io.observe(e);});
+  })();
+</script>
+</body>
+</html>
